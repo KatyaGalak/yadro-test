@@ -20,8 +20,15 @@ int main(int argc, char* argv[]) {
 
     std::string inputFileName = argv[1];
     std::string outputFileName = argv[2];
-    size_t memoryLimit = std::stoull(argv[3]);
+    size_t memoryLimit = 0;
 
+    try {
+        memoryLimit = std::stoull(argv[3]);
+    } catch (const std::exception&) {
+        std::cerr << "[ERROR] Invalid memory limit value: " << argv[3] << std::endl;
+        return 1;
+    }
+    
     try {
         TapeConfig tapeConfig = TapeConfig::loadFromFile("config/config.txt");
 
@@ -33,8 +40,8 @@ int main(int argc, char* argv[]) {
 
         tapeSorter.sort(inputTape, outputTape);
 
-        printBinaryFile("input.bin");
-        printBinaryFile("output.bin");
+        printBinaryFile(inputFileName);
+        printBinaryFile(outputFileName);
     } catch (const std::exception& e) {
         std::cerr << "[ERROR] " << e.what() << std::endl;
         return 1;

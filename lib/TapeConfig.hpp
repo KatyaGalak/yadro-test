@@ -17,7 +17,7 @@ struct TapeConfig {
 
         std::ifstream file(filename);
 
-        if (!file.is_open()) { // Это неизящно
+        if (!file.is_open()) {
             return tapeConfig;
         }
 
@@ -42,7 +42,9 @@ struct TapeConfig {
             if (registry.count(key)) {
                 try {
                     *registry[key] = std::stoi(value);
-                } catch(...) {} // надо бы ошибки ловить
+                } catch(const std::invalid_argument& e) {
+                    throw std::runtime_error("Invalid number format for key '" + key + "': " + value + ". " + e.what());
+                }
             }
         }
 

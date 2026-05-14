@@ -24,7 +24,7 @@ FileTape::FileTape(const std::string& filename, const TapeConfig& tapeConfig)
 }
 
 FileTape::~FileTape() {
-    if (file.is_open()) // неизящно
+    if (file.is_open())
         file.close();
 }
 
@@ -67,12 +67,12 @@ void FileTape::write(int32_t writeValue) {
     }
 }
 
-bool FileTape::moveNext() { // точно ли нужен bool
+bool FileTape::moveNext() {
     sleep(tapeConfig.delayShiftMs);
 
     if (currentPosition < fileSize) {
         currentPosition += sizeof(int32_t);
-        return true;
+        return currentPosition < fileSize;
     }
 
     return false;

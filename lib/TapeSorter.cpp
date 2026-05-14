@@ -5,6 +5,7 @@
 #include <string>
 #include <queue>
 #include <memory>
+#include <iostream>
 
 TapeSorter::TapeSorter(size_t memoryLimitInBytes, const std::string& tmpDirectory, const TapeConfig& tapeConfig)
     : memoryLimitInBytes(memoryLimitInBytes), tmpDirectory(tmpDirectory), tapeConfig(tapeConfig) {
@@ -71,41 +72,41 @@ void TapeSorter::sort(ITape& input, ITape& output) {
         return;
     }
 
-    std::vector<std::unique_ptr<FileTape> > tmpTapes;
-    std::priority_queue<Node, std::vector<Node>, std::greater<Node> > heap;
+    {
+        std::vector<std::unique_ptr<FileTape> > tmpTapes;
+        std::priority_queue<Node, std::vector<Node>, std::greater<Node> > heap;
 
-    for (size_t i = 0; i < tmpFilenames.size(); ++i) {
-        auto tape = std::make_unique<FileTape>(tmpFilenames[i], tapeConfig);
+        for (size_t i = 0; i < tmpFilenames.size(); ++i) {
+            auto tape = std::make_unique<FileTape>(tmpFilenames[i], tapeConfig);
 
-        tape->moveFirst();
+            tape->moveFirst();
 
-        if (!tape->isEnd()) {
-            heap.push({tape->read(), i});
+            if (!tape->isEnd()) {
+                heap.push({tape->read(), i});
+            }
+
+            tmpTapes.push_back(std::move(tape));
         }
 
-        tmpTapes.push_back(std::move(tape));
-    }
+        output.moveFirst();
 
-    output.moveFirst();
+        while (!heap.empty()) {
+            Node node = heap.top();
+            heap.pop();
 
-    while (!heap.empty()) {
-        Node node = heap.top();
-        heap.pop();
+            output.write(node.value);
 
-        output.write(node.value);
-
-        if (tmpTapes[node.blockIndex]->moveNext()) {
-            if (!tmpTapes[node.blockIndex]->isEnd()) {
+            if (tmpTapes[node.blockIndex]->moveNext()) {
                 heap.push({tmpTapes[node.blockIndex]->read(), node.blockIndex});
             }
-        }
 
-        output.moveNext();
+            output.moveNext();
+        }
     }
 
-    tmpTapes.clear();
-
     for (const auto& filename : tmpFilenames) {
-        std::filesystem::remove(filename);
+        if (std::filesystem::exists(filename)) {
+            std::filesystem::remove(filename);
+        }
     }
 }

@@ -16,7 +16,7 @@ FileTape::FileTape(const std::string& filename, const TapeConfig& tape_config)
     if (!file_stream_.is_open()) {
         throw std::runtime_error("[ERROR] Couldn't open or create a tape file_stream_:" + filename_);
     }
-    
+
     file_stream_.seekg(0, std::ios::end);
     file_size_ = static_cast<size_t>(file_stream_.tellg());
 

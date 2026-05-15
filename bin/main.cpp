@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "[ERROR] Invalid memory limit value: " << argv[3] << std::endl;
         return 1;
     }
-    
+
     try {
         TapeConfig tape_config = TapeConfig::load_from_file("config/config.txt");
 
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
         // print_binary_file(input_file_name);
         // print_binary_file(output_file_name);
-        
+
     } catch (const std::exception& e) {
         std::cerr << "[ERROR] " << e.what() << std::endl;
         return 1;

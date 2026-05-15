@@ -1,5 +1,5 @@
-add_library(TapeLib 
-    FileTape.cpp 
+add_library(TapeLib
+    FileTape.cpp
     TapeSorter.cpp
 )
 

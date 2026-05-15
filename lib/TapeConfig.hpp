@@ -50,5 +50,5 @@ struct TapeConfig {
 
         return tape_config;
     }
-    
+
 };

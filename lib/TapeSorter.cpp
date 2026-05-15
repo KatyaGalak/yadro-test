@@ -9,7 +9,7 @@
 
 TapeSorter::TapeSorter(size_t memory_limit, const std::string& tmp_directory, const TapeConfig& tape_config)
     : memory_limit_(memory_limit), tmp_directory_(tmp_directory), tape_config_(tape_config) {
-    
+
     if (!std::filesystem::exists(tmp_directory_)) {
         std::filesystem::create_directories(tmp_directory_);
     }

@@ -67,14 +67,14 @@ TEST_F(TapeTest, PreviousMovement) {
     tape.move_next();
     tape.move_next();
     ASSERT_EQ(tape.read(), 300);
-    
+
     ASSERT_TRUE(tape.move_previous());
     ASSERT_EQ(tape.read(), 200);
 }
 
 TEST_F(TapeTest, WriteAndOverwriteValue) {
     FileTape tape(kTestIn, config);
-    
+
     tape.write(1023);
     tape.move_first();
     ASSERT_EQ(tape.read(), 1023);
@@ -97,7 +97,7 @@ TEST_F(TapeTest, SortEmptyTape) {
     PrepareFile(kTestIn, {});
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
-    
+
     TapeSorter sorter(1024, kTmpDir, config);
     EXPECT_NO_THROW(sorter.sort(in, out));
 }
@@ -118,7 +118,7 @@ TEST_F(TapeTest, SortWithinMemory) {
     }
 
     std::vector<int32_t> expected = {1, 2, 3, 4, 5};
-    
+
     ASSERT_EQ(result, expected);
 }
 
@@ -154,7 +154,7 @@ TEST_F(TapeTest, SortedWithDuplicates) {
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
 
-    TapeSorter sorter(8, kTmpDir, config); 
+    TapeSorter sorter(8, kTmpDir, config);
     sorter.sort(in, out);
 
     out.move_first();
@@ -175,7 +175,7 @@ TEST_F(TapeTest, NonMultipleBufferSize) {
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
 
-    TapeSorter sorter(12, kTmpDir, config); 
+    TapeSorter sorter(12, kTmpDir, config);
     sorter.sort(in, out);
 
     out.move_first();
@@ -190,7 +190,7 @@ TEST_F(TapeTest, NegativeNumbers) {
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
 
-    TapeSorter sorter(8, kTmpDir, config); 
+    TapeSorter sorter(8, kTmpDir, config);
     sorter.sort(in, out);
 
     out.move_first();
@@ -207,12 +207,12 @@ TEST_F(TapeTest, NegativeNumbers) {
 TEST_F(TapeTest, MaxAndMinValues) {
     int32_t max = std::numeric_limits<int32_t>::max();
     int32_t min = std::numeric_limits<int32_t>::min();
-    
+
     PrepareFile(kTestIn, {max, 0, min, 1, -1});
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
 
-    TapeSorter sorter(8, kTmpDir, config); 
+    TapeSorter sorter(8, kTmpDir, config);
     sorter.sort(in, out);
 
     out.move_first();
@@ -232,7 +232,7 @@ TEST_F(TapeTest, MinimumMemoryLimit) {
     FileTape in(kTestIn, config);
     FileTape out(kTestOut, config);
 
-    TapeSorter sorter(4, kTmpDir, config); 
+    TapeSorter sorter(4, kTmpDir, config);
     sorter.sort(in, out);
 
     out.move_first();
@@ -243,7 +243,7 @@ TEST_F(TapeTest, MinimumMemoryLimit) {
 
 TEST_F(TapeTest, RepeatSorter) {
     TapeSorter sorter(8, kTmpDir, config);
-    
+
     PrepareFile(kTestIn, {2, 1});
     FileTape in1(kTestIn, config);
     FileTape out1(kTestOut, config);

@@ -12,13 +12,13 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(
-    tape_tests 
+    tape_tests
     TapeTests.cpp
 )
 
 target_link_libraries(
-    tape_tests 
-    TapeLib   
+    tape_tests
+    TapeLib
     GTest::gtest_main
 )
 

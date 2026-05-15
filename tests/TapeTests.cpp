@@ -262,75 +262,76 @@ TEST_F(TapeTest, RepeatSorter) {
 }
 
 TEST_F(TapeTest, InvalidConfigFormat) {
-    std::string configPath = "bad_config.txt";
+    std::string config_path = "bad_config.txt";
+    
     {
-        std::ofstream os(configPath);
+        std::ofstream os(config_path);
         os << "read=not_a_number\nwrite=10";
     }
 
     EXPECT_THROW({
-        TapeConfig::load_from_file(configPath);
+        TapeConfig::load_from_file(config_path);
     }, std::runtime_error);
 
-    std::filesystem::remove(configPath);
+    std::filesystem::remove(config_path);
 }
 
 TEST_F(TapeTest, ValidConfigParsing) {
-    std::string configPath = "valid_config.txt";
+    std::string valid_config_path = "valid_config.txt";
 
     {
-        std::ofstream os(configPath);
+        std::ofstream os(valid_config_path);
         os << "read=31\nwrite=25\nshift=6\nmove_first=901";
     }
 
-    TapeConfig cfg = TapeConfig::load_from_file(configPath);
+    TapeConfig cfg = TapeConfig::load_from_file(valid_config_path);
 
     EXPECT_EQ(cfg.delay_read_ms, 31);
     EXPECT_EQ(cfg.delay_write_ms, 25);
     EXPECT_EQ(cfg.delay_shift_ms, 6);
     EXPECT_EQ(cfg.delay_move_first_ms, 901);
 
-    std::filesystem::remove(configPath);
+    std::filesystem::remove(valid_config_path);
 }
 
 TEST_F(TapeTest, InvalidConfigValue) {
-    std::string invalidPath = "invalid_value_config.txt";
+    std::string invalid_config_path = "invalid_value_config.txt";
     {
-        std::ofstream os(invalidPath);
+        std::ofstream os(invalid_config_path);
         os << "read=gjfnhjg66rgh\n";
         os << "write=217";
     }
 
     EXPECT_THROW({
         try {
-            TapeConfig::load_from_file(invalidPath);
+            TapeConfig::load_from_file(invalid_config_path);
         } catch (const std::exception&) {
-            std::filesystem::remove(invalidPath);
+            std::filesystem::remove(invalid_config_path);
 
             throw;
         }
     }, std::exception);
 
-    if (std::filesystem::exists(invalidPath)) {
-        std::filesystem::remove(invalidPath);
+    if (std::filesystem::exists(invalid_config_path)) {
+        std::filesystem::remove(invalid_config_path);
     }
 }
 
 TEST_F(TapeTest, ConfigWithLinesWithoutKey) {
-    std::string brokenPath = "broken_lines.txt";
+    std::string broken_path = "broken_lines.txt";
 
     {
-        std::ofstream os(brokenPath);
+        std::ofstream os(broken_path);
 
         os << "read=19\n";
         os << "66fdrghh gygyg fff -+8\n";
         os << "write=888";
     }
 
-    TapeConfig cfg = TapeConfig::load_from_file(brokenPath);
+    TapeConfig cfg = TapeConfig::load_from_file(broken_path);
 
     EXPECT_EQ(cfg.delay_read_ms, 19);
     EXPECT_EQ(cfg.delay_write_ms, 888);
 
-    std::filesystem::remove(brokenPath);
+    std::filesystem::remove(broken_path);
 }

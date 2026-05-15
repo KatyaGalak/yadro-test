@@ -44,9 +44,9 @@ TEST_F(TapeTest, InitializationAndEndCheck) {
     PrepareFile(kTestIn, {1, 2, 3});
     FileTape tape(kTestIn, config);
 
-    ASSERT_FALSE(tape.isEnd());
+    ASSERT_FALSE(tape.is_end());
 
-    EXPECT_NO_THROW(tape.moveFirst());
+    EXPECT_NO_THROW(tape.move_first());
 }
 
 TEST_F(TapeTest, SequentialRead) {
@@ -54,21 +54,21 @@ TEST_F(TapeTest, SequentialRead) {
     FileTape tape(kTestIn, config);
 
     ASSERT_EQ(tape.read(), 10);
-    ASSERT_TRUE(tape.moveNext());
+    ASSERT_TRUE(tape.move_next());
     ASSERT_EQ(tape.read(), 20);
-    ASSERT_FALSE(tape.moveNext());
-    ASSERT_TRUE(tape.isEnd());
+    ASSERT_FALSE(tape.move_next());
+    ASSERT_TRUE(tape.is_end());
 }
 
 TEST_F(TapeTest, PreviousMovement) {
     PrepareFile(kTestIn, {100, 200, 300});
     FileTape tape(kTestIn, config);
 
-    tape.moveNext();
-    tape.moveNext();
+    tape.move_next();
+    tape.move_next();
     ASSERT_EQ(tape.read(), 300);
     
-    ASSERT_TRUE(tape.movePrevious());
+    ASSERT_TRUE(tape.move_previous());
     ASSERT_EQ(tape.read(), 200);
 }
 
@@ -76,11 +76,11 @@ TEST_F(TapeTest, WriteAndOverwriteValue) {
     FileTape tape(kTestIn, config);
     
     tape.write(1023);
-    tape.moveFirst();
+    tape.move_first();
     ASSERT_EQ(tape.read(), 1023);
 
     tape.write(934155);
-    tape.moveFirst();
+    tape.move_first();
     ASSERT_EQ(tape.read(), 934155);
 }
 
@@ -88,8 +88,8 @@ TEST_F(TapeTest, ThrowReadEnd) {
     PrepareFile(kTestIn, {1});
     FileTape tape(kTestIn, config);
 
-    tape.moveNext();
-    ASSERT_TRUE(tape.isEnd());
+    tape.move_next();
+    ASSERT_TRUE(tape.is_end());
     EXPECT_THROW(tape.read(), std::runtime_error);
 }
 
@@ -110,11 +110,11 @@ TEST_F(TapeTest, SortWithinMemory) {
     TapeSorter sorter(100, kTmpDir, config);
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     std::vector<int32_t> result;
-    while (!out.isEnd()) {
+    while (!out.is_end()) {
         result.push_back(out.read());
-        out.moveNext();
+        out.move_next();
     }
 
     std::vector<int32_t> expected = {1, 2, 3, 4, 5};
@@ -130,10 +130,10 @@ TEST_F(TapeTest, SortOutOfMemory) {
     TapeSorter sorter(8, kTmpDir, config);
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     for (int32_t i = 1; i <= 10; ++i) {
         ASSERT_EQ(out.read(), i);
-        out.moveNext();
+        out.move_next();
     }
 }
 
@@ -145,7 +145,7 @@ TEST_F(TapeTest, SingleElementSort) {
     TapeSorter sorter(4, kTmpDir, config);
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     ASSERT_EQ(out.read(), 40);
 }
 
@@ -157,12 +157,12 @@ TEST_F(TapeTest, SortedWithDuplicates) {
     TapeSorter sorter(8, kTmpDir, config); 
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
 
     std::vector<int32_t> result;
-    while (!out.isEnd()) {
+    while (!out.is_end()) {
         result.push_back(out.read());
-        out.moveNext();
+        out.move_next();
     }
 
     std::vector<int32_t> expected = {1, 1, 2, 3, 5, 5};
@@ -178,10 +178,10 @@ TEST_F(TapeTest, NonMultipleBufferSize) {
     TapeSorter sorter(12, kTmpDir, config); 
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     for (int32_t i = 1; i <= 11; ++i) {
         ASSERT_EQ(out.read(), i);
-        out.moveNext();
+        out.move_next();
     }
 }
 
@@ -193,11 +193,11 @@ TEST_F(TapeTest, NegativeNumbers) {
     TapeSorter sorter(8, kTmpDir, config); 
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     std::vector<int32_t> result;
-    while (!out.isEnd()) {
+    while (!out.is_end()) {
         result.push_back(out.read());
-        out.moveNext();
+        out.move_next();
     }
 
     std::vector<int32_t> expected = {-123, -52, 0, 10, 50};
@@ -215,12 +215,12 @@ TEST_F(TapeTest, MaxAndMinValues) {
     TapeSorter sorter(8, kTmpDir, config); 
     sorter.sort(in, out);
 
-    out.moveFirst();
+    out.move_first();
     std::vector<int32_t> result;
 
-    while (!out.isEnd()) {
+    while (!out.is_end()) {
         result.push_back(out.read());
-        out.moveNext();
+        out.move_next();
     }
 
     std::vector<int32_t> expected = {min, -1, 0, 1, max};
@@ -235,9 +235,9 @@ TEST_F(TapeTest, MinimumMemoryLimit) {
     TapeSorter sorter(4, kTmpDir, config); 
     sorter.sort(in, out);
 
-    out.moveFirst();
-    EXPECT_EQ(out.read(), 1); out.moveNext();
-    EXPECT_EQ(out.read(), 2); out.moveNext();
+    out.move_first();
+    EXPECT_EQ(out.read(), 1); out.move_next();
+    EXPECT_EQ(out.read(), 2); out.move_next();
     EXPECT_EQ(out.read(), 3);
 }
 
@@ -254,10 +254,10 @@ TEST_F(TapeTest, RepeatSorter) {
     FileTape out2(kTestOut, config);
     sorter.sort(in2, out2);
 
-    out2.moveFirst();
+    out2.move_first();
 
     EXPECT_EQ(out2.read(), 3);
-    EXPECT_EQ(out2.moveNext(), true);
+    EXPECT_EQ(out2.move_next(), true);
     EXPECT_EQ(out2.read(), 4);
 }
 
@@ -269,7 +269,7 @@ TEST_F(TapeTest, InvalidConfigFormat) {
     }
 
     EXPECT_THROW({
-        TapeConfig::loadFromFile(configPath);
+        TapeConfig::load_from_file(configPath);
     }, std::runtime_error);
 
     std::filesystem::remove(configPath);

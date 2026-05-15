@@ -5,10 +5,11 @@
 #include "FileTape.hpp"
 #include "TapeSorter.hpp"
 
-void printBinaryFile(const std::string& fileName) {
-    std::ifstream file(fileName, std::ios::binary);
+void print_binary_file(const std::string& file_name) {
+    std::ifstream file(file_name, std::ios::binary);
     int32_t value;
-    std::cout << fileName << ": ";
+    std::cout << file_name << ": ";
+
     while (file.read(reinterpret_cast<char*>(&value), sizeof(value))) {
         std::cout << value << " ";
     }
@@ -25,30 +26,31 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string inputFileName = argv[1];
-    std::string outputFileName = argv[2];
-    size_t memoryLimit = 0;
+    std::string input_file_name = argv[1];
+    std::string output_file_name = argv[2];
+    size_t memory_limit = 0;
 
     try {
-        memoryLimit = std::stoull(argv[3]);
+        memory_limit = std::stoull(argv[3]);
     } catch (const std::exception&) {
         std::cerr << "[ERROR] Invalid memory limit value: " << argv[3] << std::endl;
         return 1;
     }
     
     try {
-        TapeConfig tapeConfig = TapeConfig::loadFromFile("config/config.txt");
+        TapeConfig tape_config = TapeConfig::load_from_file("config/config.txt");
 
-        FileTape inputTape(inputFileName, tapeConfig);
+        FileTape input_tape(input_file_name, tape_config);
 
-        FileTape outputTape(outputFileName, tapeConfig);
+        FileTape output_tape(output_file_name, tape_config);
 
-        TapeSorter tapeSorter(memoryLimit, "tmp", tapeConfig);
+        TapeSorter tapeSorter(memory_limit, "tmp", tape_config);
 
-        tapeSorter.sort(inputTape, outputTape);
+        tapeSorter.sort(input_tape, output_tape);
 
-        printBinaryFile(inputFileName);
-        printBinaryFile(outputFileName);
+        // print_binary_file(input_file_name);
+        // print_binary_file(output_file_name);
+        
     } catch (const std::exception& e) {
         std::cerr << "[ERROR] " << e.what() << std::endl;
         return 1;

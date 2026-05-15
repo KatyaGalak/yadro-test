@@ -8,26 +8,26 @@
 
 class FileTape : public ITape {
 private:
-    std::string filename;
-    std::fstream file;
+    std::string filename_;
+    std::fstream file_stream_;
 
-    size_t currentPosition;
-    size_t fileSize;
+    size_t current_position_;
+    size_t file_size_;
 
-    TapeConfig tapeConfig;
+    TapeConfig tape_config_;
 
-    void sleep(int timeMs) const;
+    void sleep(int time_ms) const;
 
 public:
     FileTape(const std::string& filename, const TapeConfig& tapeConfig);
     ~FileTape() override;
 
     int32_t read() override;
-    void write(int32_t writeValue) override;
+    void write(int32_t write_value) override;
 
-    bool moveNext() override;
-    bool movePrevious() override;
-    void moveFirst() override;
+    bool move_next() override;
+    bool move_previous() override;
+    void move_first() override;
 
-    bool isEnd() const override;
+    bool is_end() const override;
 };

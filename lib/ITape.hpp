@@ -8,11 +8,11 @@ public:
 
     virtual int32_t read() = 0;
 
-    virtual void write(int32_t writeValue) = 0;
+    virtual void write(int32_t write_value) = 0;
 
-    virtual bool moveNext() = 0;
-    virtual bool movePrevious() = 0;
-    virtual void moveFirst() = 0;
+    virtual bool move_next() = 0;
+    virtual bool move_previous() = 0;
+    virtual void move_first() = 0;
 
-    virtual bool isEnd() const = 0;
+    virtual bool is_end() const = 0;
 };

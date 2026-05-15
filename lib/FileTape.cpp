@@ -4,85 +4,85 @@
 #include <thread>
 #include <chrono>
 
-FileTape::FileTape(const std::string& filename, const TapeConfig& tapeConfig)
-    : filename(filename), tapeConfig(tapeConfig), currentPosition(0) {
+FileTape::FileTape(const std::string& filename, const TapeConfig& tape_config)
+    : filename_(filename), tape_config_(tape_config), current_position_(0) {
 
-    if (!std::filesystem::exists(filename)) {
-        std::ofstream create_file(filename, std::ios::binary);
+    if (!std::filesystem::exists(filename_)) {
+        std::ofstream create_file(filename_, std::ios::binary);
     }
 
-    file.open(filename, std::ios::in | std::ios::out | std::ios::binary);
+    file_stream_.open(filename_, std::ios::in | std::ios::out | std::ios::binary);
 
-    if (!file.is_open()) {
-        throw std::runtime_error("[ERROR] Couldn't open or create a tape file:" + filename);
+    if (!file_stream_.is_open()) {
+        throw std::runtime_error("[ERROR] Couldn't open or create a tape file_stream_:" + filename_);
     }
     
-    file.seekg(0, std::ios::end);
-    fileSize = static_cast<size_t>(file.tellg());
+    file_stream_.seekg(0, std::ios::end);
+    file_size_ = static_cast<size_t>(file_stream_.tellg());
 
-    file.seekg(0, std::ios::beg);
+    file_stream_.seekg(0, std::ios::beg);
 }
 
 FileTape::~FileTape() {
-    if (file.is_open())
-        file.close();
+    if (file_stream_.is_open())
+        file_stream_.close();
 }
 
-void FileTape::sleep(int timeMs) const {
-    if (timeMs > 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(timeMs));
+void FileTape::sleep(int time_ms) const {
+    if (time_ms > 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
     }
 }
 
 int32_t FileTape::read() {
 
-    if (isEnd()) {
-        throw std::runtime_error("[ERROR] Attempt to read at end of tape: " + filename);
+    if (is_end()) {
+        throw std::runtime_error("[ERROR] Attempt to read at end of tape: " + filename_);
     }
 
-    sleep(tapeConfig.delayReadMs);
+    sleep(tape_config_.delay_read_ms);
 
     int32_t readValue = 0;
 
-    file.clear();
-    file.seekg(currentPosition);
-    file.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
+    file_stream_.clear();
+    file_stream_.seekg(current_position_);
+    file_stream_.read(reinterpret_cast<char*>(&readValue), sizeof(readValue));
 
     return readValue;
 }
 
-void FileTape::write(int32_t writeValue) {
-    sleep(tapeConfig.delayWriteMs);
+void FileTape::write(int32_t write_value) {
+    sleep(tape_config_.delay_write_ms);
 
-    file.clear();
-    file.seekg(currentPosition);
+    file_stream_.clear();
+    file_stream_.seekg(current_position_);
 
-    file.write(reinterpret_cast<char*>(&writeValue), sizeof(writeValue));
+    file_stream_.write(reinterpret_cast<char*>(&write_value), sizeof(write_value));
 
-    size_t sizeAfterAdd = currentPosition + sizeof(int32_t);
-    if (sizeAfterAdd > fileSize) {
-        fileSize = sizeAfterAdd;
+    size_t sizeAfterAdd = current_position_ + sizeof(int32_t);
+    if (sizeAfterAdd > file_size_) {
+        file_size_ = sizeAfterAdd;
 
-        file.flush();
+        file_stream_.flush();
     }
 }
 
-bool FileTape::moveNext() {
-    sleep(tapeConfig.delayShiftMs);
+bool FileTape::move_next() {
+    sleep(tape_config_.delay_shift_ms);
 
-    if (currentPosition < fileSize) {
-        currentPosition += sizeof(int32_t);
-        return currentPosition < fileSize;
+    if (current_position_ < file_size_) {
+        current_position_ += sizeof(int32_t);
+        return current_position_ < file_size_;
     }
 
     return false;
 }
 
-bool FileTape::movePrevious() {
-    sleep(tapeConfig.delayShiftMs);
+bool FileTape::move_previous() {
+    sleep(tape_config_.delay_shift_ms);
 
-    if (currentPosition >= sizeof(int32_t)) {
-        currentPosition -= sizeof(int32_t);
+    if (current_position_ >= sizeof(int32_t)) {
+        current_position_ -= sizeof(int32_t);
 
         return true;
     }
@@ -90,15 +90,15 @@ bool FileTape::movePrevious() {
     return false;
 }
 
-void FileTape::moveFirst() {
-    sleep(tapeConfig.delayMoveFirstMs);
+void FileTape::move_first() {
+    sleep(tape_config_.delay_move_first_ms);
 
-    currentPosition = 0;
-    file.clear();
+    current_position_ = 0;
+    file_stream_.clear();
 
-    file.seekg(0);
+    file_stream_.seekg(0);
 }
 
-bool FileTape::isEnd() const {
-    return currentPosition >= fileSize;
+bool FileTape::is_end() const {
+    return current_position_ >= file_size_;
 }

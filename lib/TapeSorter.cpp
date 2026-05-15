@@ -7,17 +7,17 @@
 #include <memory>
 #include <iostream>
 
-TapeSorter::TapeSorter(size_t memoryLimitInBytes, const std::string& tmpDirectory, const TapeConfig& tapeConfig)
-    : memoryLimitInBytes(memoryLimitInBytes), tmpDirectory(tmpDirectory), tapeConfig(tapeConfig) {
+TapeSorter::TapeSorter(size_t memory_limit, const std::string& tmp_directory, const TapeConfig& tape_config)
+    : memory_limit_(memory_limit), tmp_directory_(tmp_directory), tape_config_(tape_config) {
     
-    if (!std::filesystem::exists(tmpDirectory)) {
-        std::filesystem::create_directories(tmpDirectory);
+    if (!std::filesystem::exists(tmp_directory_)) {
+        std::filesystem::create_directories(tmp_directory_);
     }
 }
 
 struct Node {
     int32_t value;
-    size_t blockIndex;
+    size_t block_index;
 
     bool operator > (const Node& o) const {
         return value > o.value;
@@ -25,26 +25,27 @@ struct Node {
 };
 
 void TapeSorter::sort(ITape& input, ITape& output) {
-    size_t cntMaxElements = memoryLimitInBytes / sizeof(int32_t);
+    size_t cnt_max_elements = memory_limit_ / sizeof(int32_t);
 
-    if (cntMaxElements == 0) {
+    if (cnt_max_elements == 0) {
         throw std::runtime_error("The memory limit does not even hold one element");
     }
 
-    std::vector<int32_t> buffer(cntMaxElements);
+    std::vector<int32_t> buffer;
+    buffer.reserve(cnt_max_elements);
 
-    input.moveFirst();
+    input.move_first();
 
-    int blockIndex = 0;
-    std::vector<std::string> tmpFilenames;
+    int block_index = 0;
+    std::vector<std::string> tmp_filenames;
 
-    while (!input.isEnd()) {
+    while (!input.is_end()) {
         buffer.clear();
 
-        while (!input.isEnd() && buffer.size() < cntMaxElements) {
+        while (!input.is_end() && buffer.size() < cnt_max_elements) {
             buffer.push_back(input.read());
 
-            input.moveNext();
+            input.move_next();
         }
 
         if (buffer.empty()) {
@@ -53,42 +54,42 @@ void TapeSorter::sort(ITape& input, ITape& output) {
 
         std::sort(buffer.begin(), buffer.end());
 
-        std::string tmpFilename = tmpDirectory + "/tmp_tape_" + std::to_string(blockIndex++) + ".bin";
+        std::string tmpFilename = tmp_directory_ + "/tmp_tape_" + std::to_string(block_index++) + ".bin";
 
-        tmpFilenames.push_back(tmpFilename);
+        tmp_filenames.push_back(tmpFilename);
 
-        FileTape tmpTape(tmpFilename, tapeConfig);
+        FileTape tmpTape(tmpFilename, tape_config_);
 
         for (size_t i = 0; i < buffer.size(); ++i) {
             tmpTape.write(buffer[i]);
 
             if (i < buffer.size() - 1) {
-                tmpTape.moveNext();
+                tmpTape.move_next();
             }
         }
     }
 
-    if (tmpFilenames.empty()) {
+    if (tmp_filenames.empty()) {
         return;
     }
 
     {
-        std::vector<std::unique_ptr<FileTape> > tmpTapes;
+        std::vector<std::unique_ptr<FileTape> > tmp_tapes;
         std::priority_queue<Node, std::vector<Node>, std::greater<Node> > heap;
 
-        for (size_t i = 0; i < tmpFilenames.size(); ++i) {
-            auto tape = std::make_unique<FileTape>(tmpFilenames[i], tapeConfig);
+        for (size_t i = 0; i < tmp_filenames.size(); ++i) {
+            auto tape = std::make_unique<FileTape>(tmp_filenames[i], tape_config_);
 
-            tape->moveFirst();
+            tape->move_first();
 
-            if (!tape->isEnd()) {
+            if (!tape->is_end()) {
                 heap.push({tape->read(), i});
             }
 
-            tmpTapes.push_back(std::move(tape));
+            tmp_tapes.push_back(std::move(tape));
         }
 
-        output.moveFirst();
+        output.move_first();
 
         while (!heap.empty()) {
             Node node = heap.top();
@@ -96,15 +97,15 @@ void TapeSorter::sort(ITape& input, ITape& output) {
 
             output.write(node.value);
 
-            if (tmpTapes[node.blockIndex]->moveNext()) {
-                heap.push({tmpTapes[node.blockIndex]->read(), node.blockIndex});
+            if (tmp_tapes[node.block_index]->move_next()) {
+                heap.push({tmp_tapes[node.block_index]->read(), node.block_index});
             }
 
-            output.moveNext();
+            output.move_next();
         }
     }
 
-    for (const auto& filename : tmpFilenames) {
+    for (const auto& filename : tmp_filenames) {
         if (std::filesystem::exists(filename)) {
             std::filesystem::remove(filename);
         }

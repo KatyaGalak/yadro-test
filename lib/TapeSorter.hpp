@@ -8,14 +8,14 @@
 
 class TapeSorter {
 private:
-    size_t memoryLimitInBytes;
+    size_t memory_limit_;
 
-    std::string tmpDirectory;
+    std::string tmp_directory_;
 
-    TapeConfig tapeConfig;
+    TapeConfig tape_config_;
 
 public:
-    TapeSorter(size_t memoryLimitInBytes, const std::string& tmpDirectory, const TapeConfig& tapeConfig);
+    TapeSorter(size_t memory_limit, const std::string& tmp_directory, const TapeConfig& tape_config);
 
     void sort(ITape& input, ITape& output);
 };

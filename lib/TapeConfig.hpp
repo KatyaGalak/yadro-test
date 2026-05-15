@@ -4,40 +4,40 @@
 #include <fstream>
 
 struct TapeConfig {
-    int delayReadMs = 0;
+    int delay_read_ms = 0;
 
-    int delayWriteMs = 0;
+    int delay_write_ms = 0;
 
-    int delayShiftMs = 0;
+    int delay_shift_ms = 0;
 
-    int delayMoveFirstMs = 0;
+    int delay_move_first_ms = 0;
 
-    static TapeConfig loadFromFile(const std::string& filename) {
-        TapeConfig tapeConfig;
+    static TapeConfig load_from_file(const std::string& filename) {
+        TapeConfig tape_config;
 
         std::ifstream file(filename);
 
         if (!file.is_open()) {
-            return tapeConfig;
+            return tape_config;
         }
 
         std::map<std::string, int*> registry = {
-            {"read",   &tapeConfig.delayReadMs},
-            {"write",  &tapeConfig.delayWriteMs},
-            {"shift",  &tapeConfig.delayShiftMs},
-            {"moveFirst", &tapeConfig.delayMoveFirstMs}
+            {"read",   &tape_config.delay_read_ms},
+            {"write",  &tape_config.delay_write_ms},
+            {"shift",  &tape_config.delay_shift_ms},
+            {"move_first", &tape_config.delay_move_first_ms}
         };
 
-        std::string readLine;
-        while (std::getline(file, readLine)) {
-            size_t equalsSign = readLine.find('=');
+        std::string read_line;
+        while (std::getline(file, read_line)) {
+            size_t equals_sign = read_line.find('=');
 
-            if (equalsSign == std::string::npos) {
+            if (equals_sign == std::string::npos) {
                 continue;
             }
 
-            std::string key = readLine.substr(0, equalsSign);
-            std::string value = readLine.substr(equalsSign + 1);
+            std::string key = read_line.substr(0, equals_sign);
+            std::string value = read_line.substr(equals_sign + 1);
 
             if (registry.count(key)) {
                 try {
@@ -48,7 +48,7 @@ struct TapeConfig {
             }
         }
 
-        return tapeConfig;
+        return tape_config;
     }
     
 };

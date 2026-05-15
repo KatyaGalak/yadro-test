@@ -263,7 +263,7 @@ TEST_F(TapeTest, RepeatSorter) {
 
 TEST_F(TapeTest, InvalidConfigFormat) {
     std::string config_path = "bad_config.txt";
-    
+
     {
         std::ofstream os(config_path);
         os << "read=not_a_number\nwrite=10";

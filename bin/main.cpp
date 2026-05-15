@@ -16,7 +16,14 @@ void printBinaryFile(const std::string& fileName) {
 }
 
 int main(int argc, char* argv[]) {
-    // TODO проверка аргументов
+    if (argc != 4) {
+        std::cerr << "[ERROR] There must be 3 required command line arguments:" << std::endl;
+        std::cerr << argv[0] << " <input_file> <output_file> <memory_limit_bytes>" << std::endl;
+
+        std::cerr << "Example: " << argv[0] << " input.bin output.bin 1024" << std::endl;
+
+        return 1;
+    }
 
     std::string inputFileName = argv[1];
     std::string outputFileName = argv[2];

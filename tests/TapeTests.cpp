@@ -274,3 +274,63 @@ TEST_F(TapeTest, InvalidConfigFormat) {
 
     std::filesystem::remove(configPath);
 }
+
+TEST_F(TapeTest, ValidConfigParsing) {
+    std::string configPath = "valid_config.txt";
+
+    {
+        std::ofstream os(configPath);
+        os << "read=31\nwrite=25\nshift=6\nmove_first=901";
+    }
+
+    TapeConfig cfg = TapeConfig::load_from_file(configPath);
+
+    EXPECT_EQ(cfg.delay_read_ms, 31);
+    EXPECT_EQ(cfg.delay_write_ms, 25);
+    EXPECT_EQ(cfg.delay_shift_ms, 6);
+    EXPECT_EQ(cfg.delay_move_first_ms, 901);
+
+    std::filesystem::remove(configPath);
+}
+
+TEST_F(TapeTest, InvalidConfigValue) {
+    std::string invalidPath = "invalid_value_config.txt";
+    {
+        std::ofstream os(invalidPath);
+        os << "read=gjfnhjg66rgh\n";
+        os << "write=217";
+    }
+
+    EXPECT_THROW({
+        try {
+            TapeConfig::load_from_file(invalidPath);
+        } catch (const std::exception&) {
+            std::filesystem::remove(invalidPath);
+
+            throw;
+        }
+    }, std::exception);
+
+    if (std::filesystem::exists(invalidPath)) {
+        std::filesystem::remove(invalidPath);
+    }
+}
+
+TEST_F(TapeTest, ConfigWithLinesWithoutKey) {
+    std::string brokenPath = "broken_lines.txt";
+
+    {
+        std::ofstream os(brokenPath);
+
+        os << "read=19\n";
+        os << "66fdrghh gygyg fff -+8\n";
+        os << "write=888";
+    }
+
+    TapeConfig cfg = TapeConfig::load_from_file(brokenPath);
+
+    EXPECT_EQ(cfg.delay_read_ms, 19);
+    EXPECT_EQ(cfg.delay_write_ms, 888);
+
+    std::filesystem::remove(brokenPath);
+}

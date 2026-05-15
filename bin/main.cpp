@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <filesystem>
 
 #include "TapeConfig.hpp"
 #include "FileTape.hpp"
@@ -37,8 +38,15 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    std::string config_path = "config/config.txt";
+
+    if (!std::filesystem::exists(config_path)) {
+        std::cerr << "[WARNING] The configuration file was not found, the default values (0 ms) will be used";
+        std::cerr << std::endl;
+    }
+
     try {
-        TapeConfig tape_config = TapeConfig::load_from_file("config/config.txt");
+        TapeConfig tape_config = TapeConfig::load_from_file(config_path);
 
         FileTape input_tape(input_file_name, tape_config);
 
